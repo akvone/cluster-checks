@@ -30,11 +30,14 @@ class PermissionScenario(
 
     val log = getLogger()
 
-    override fun handleStepResult(sr: StepResult<PermissionCheckContext, Boolean>): ScenarioResult {
-        sr.taskResults.forEach {
-            log.debug("${it.context.host}: ${it.taskResult}")
+    override fun handleStepResult(
+        scenarioInput: PermissionScenarioInput,
+        stepResult: StepResult<PermissionCheckContext, Boolean>
+    ): ScenarioResult {
+        stepResult.taskResults.forEach {
+            log.debug("[permission=${scenarioInput.permission},host=${it.context.host},result=${it.taskResult}]")
         }
-        val resultStatus = if (sr.taskResults.all { it.taskResult }) ResultStatus.OK else ResultStatus.PROBLEM_DETECTED
+        val resultStatus = if (stepResult.taskResults.all { it.taskResult }) ResultStatus.OK else ResultStatus.PROBLEM_DETECTED
 
         return SimpleScenarioResult(resultStatus)
     }

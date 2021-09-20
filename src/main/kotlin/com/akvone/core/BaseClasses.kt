@@ -21,12 +21,12 @@ abstract class BaseOneStepScenario<SI, TC, TR>(
     override suspend fun execute(scenarioInput: SI): ScenarioResult {
         val contexts = contextGenerator.generate(scenarioInput)
         val stepResult: StepResult<TC, TR> = Step(function, contexts).execute()
-        val scenarioResult: ScenarioResult = handleStepResult(stepResult)
+        val scenarioResult: ScenarioResult = handleStepResult(scenarioInput, stepResult)
 
         return scenarioResult
     }
 
-    protected abstract fun handleStepResult(sr: StepResult<TC, TR>): ScenarioResult
+    protected abstract fun handleStepResult(scenarioInput: SI, stepResult: StepResult<TC, TR>): ScenarioResult
 
 }
 
