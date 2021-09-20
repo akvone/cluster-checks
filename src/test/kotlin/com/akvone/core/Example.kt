@@ -1,11 +1,10 @@
 package com.akvone.core
 
 import com.akvone.core.Utils.getLogger
-import kotlinx.coroutines.delay
 import org.springframework.stereotype.Component
 
 @Component
-class InfoTask : Task<PermissionCheckContext, Boolean> {
+class InfoFunction : Function<PermissionCheckContext, Boolean> {
 
     override suspend fun execute(context: PermissionCheckContext): Boolean {
         val body = context.mockRestClient.get(context.host)
@@ -20,37 +19,26 @@ data class PermissionCheckContext(
     val permission: String
 )
 
-class MockRestClient {
-
-    val log = getLogger()
-
-    suspend fun get(url: String): List<String> {
-        log.debug("Get to $url")
-        delay(1000)
-        return listOf("admin", "reviewer")
-    }
-}
-
-class PermissionContextHolder(contexts: Collection<PermissionCheckContext>) :
-    BaseContextHolder<PermissionCheckContext>(contexts)
-
 @Component
 class PermissionScenario(
-    private val contextHolderService: ContextHolderService,
-    task: InfoTask
-) : BaseOneStepScenario<PermissionCheckContext, Boolean, PermissionScenarioInput, Unit>(task) {
+    infoFunction: InfoFunction,
+    permissionContextGenerator: PermissionContextGenerator
+) : BaseOneStepScenario<PermissionScenarioInput, PermissionCheckContext, Boolean>(
+    infoFunction,
+    permissionContextGenerator
+) {
 
     val log = getLogger()
 
-    override fun handleStepResult(sr: StepResult<PermissionCheckContext, Boolean>) {
+    override fun handleStepResult(sr: StepResult<PermissionCheckContext, Boolean>): ScenarioResult {
         sr.taskResults.forEach {
-            log.info("${it.context.host}: ${it.taskResult}")
+            log.debug("${it.context.host}: ${it.taskResult}")
         }
+        val resultStatus = if (sr.taskResults.all { it.taskResult }) ResultStatus.OK else ResultStatus.PROBLEM_DETECTED
+
+        return SimpleScenarioResult(resultStatus)
     }
 
-    override fun getContextHolder(scenarioInput: PermissionScenarioInput): ContextHolder<PermissionCheckContext> {
-        return contextHolderService.getPermissionContextHolder(scenarioInput)
-    }
 }
 
 data class PermissionScenarioInput(
@@ -59,14 +47,13 @@ data class PermissionScenarioInput(
 )
 
 @Component
-class ContextHolderService {
-
-    fun getPermissionContextHolder(permissionScenarioInput: PermissionScenarioInput): PermissionContextHolder {
+class PermissionContextGenerator : ContextGenerator<PermissionScenarioInput, PermissionCheckContext> {
+    override fun generate(input: PermissionScenarioInput): Collection<PermissionCheckContext> {
         val contexts = (1..10).map {
-            "https://${permissionScenarioInput.tier}.example$it.org"
-        }
-            .map { PermissionCheckContext(MockRestClient(), it, permissionScenarioInput.permission) }
+            "https://${input.tier}.example$it.org"
+        }.map { PermissionCheckContext(MockRestClient(), it, input.permission) }
 
-        return PermissionContextHolder(contexts)
+        return contexts
     }
+
 }

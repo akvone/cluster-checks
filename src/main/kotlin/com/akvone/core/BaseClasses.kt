@@ -4,40 +4,41 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
-open class BaseContextHolder<C>(
-    private val contexts: Collection<C>
-) : ContextHolder<C> {
-    override fun get(): Collection<C> = contexts
+interface ContextGenerator<ScenarioInput, TaskContext> {
+    fun generate(input: ScenarioInput): Collection<TaskContext>
 }
 
-abstract class BaseOneStepScenario<TC, TR, SI, SR>(
-    private val task: Task<TC, TR>,
-) : Scenario<SI, SR> {
+data class TaskResult<TaskContext, TaskResult>(
+    val context: TaskContext,
+    val taskResult: TaskResult
+)
 
-    override suspend fun execute(scenarioInput: SI): SR {
-        val contextHolder: ContextHolder<TC> = getContextHolder(scenarioInput)
-        val stepResult: StepResult<TC, TR> = Step(task, contextHolder).execute()
-        val scenarioResult: SR = handleStepResult(stepResult)
+abstract class BaseOneStepScenario<SI, TC, TR>(
+    private val function: Function<TC, TR>,
+    private val contextGenerator: ContextGenerator<SI, TC>
+) : Scenario<SI>, Stateless {
+
+    override suspend fun execute(scenarioInput: SI): ScenarioResult {
+        val contexts = contextGenerator.generate(scenarioInput)
+        val stepResult: StepResult<TC, TR> = Step(function, contexts).execute()
+        val scenarioResult: ScenarioResult = handleStepResult(stepResult)
 
         return scenarioResult
     }
 
-
-    protected abstract fun getContextHolder(scenarioInput: SI): ContextHolder<TC>
-
-    protected abstract fun handleStepResult(sr: StepResult<TC, TR>): SR
+    protected abstract fun handleStepResult(sr: StepResult<TC, TR>): ScenarioResult
 
 }
 
 class Step<C, R>(
-    private val task: Task<C, R>,
-    private val contextHolder: ContextHolder<C>
+    private val function: Function<C, R>,
+    private val contexts: Collection<C>
 ) {
     suspend fun execute(): StepResult<C, R> {
         return coroutineScope { // TODO: Check it
-            val taskResults: List<TaskResult<C, R>> = contextHolder.get().map { context ->
+            val taskResults: List<TaskResult<C, R>> = contexts.map { context ->
                 async {
-                    val taskResult = task.execute(context)
+                    val taskResult = function.execute(context)
                     TaskResult(context, taskResult)
                 }
             }.awaitAll()
@@ -48,5 +49,9 @@ class Step<C, R>(
 }
 
 data class StepResult<C, R>(
-    val taskResults: List<TaskResult<C, R>>
+    val taskResults: Collection<TaskResult<C, R>>
 )
+
+data class SimpleScenarioResult(val status: ResultStatus) : ScenarioResult {
+    override fun getResultStatus() = status
+}

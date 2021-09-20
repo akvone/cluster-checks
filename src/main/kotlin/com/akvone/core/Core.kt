@@ -1,22 +1,20 @@
 package com.akvone.core
 
-interface Task<Context, Result> {
+interface Function<TaskContext, TaskResult> : Stateless {
     /**
      * Do not block execution inside this method
      */
-    suspend fun execute(context: Context): Result
+    suspend fun execute(context: TaskContext): TaskResult
 }
 
-interface ContextHolder<Context> {
-
-    fun get(): Collection<Context>
+interface Scenario<ScenarioInput> {
+    suspend fun execute(scenarioInput: ScenarioInput): ScenarioResult
 }
 
-data class TaskResult<Context, Result>(
-    val context: Context,
-    val taskResult: Result
-)
+interface ScenarioResult {
+    fun getResultStatus(): ResultStatus
+}
 
-interface Scenario<Input, Result> {
-    suspend fun execute(scenarioInput: Input): Result
+enum class ResultStatus {
+    OK, PROBLEM_DETECTED
 }

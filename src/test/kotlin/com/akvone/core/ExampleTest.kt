@@ -1,5 +1,6 @@
 package com.akvone.core
 
+import com.akvone.core.Utils.getLogger
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -12,14 +13,18 @@ class ExampleTest(
     val permissionScenario: PermissionScenario
 ) {
 
+    val log = getLogger()
+
     @Test
     fun test() {
         runBlocking {
             launch {
-                permissionScenario.execute(PermissionScenarioInput("prod", "admin"))
+                val scenarioResult = permissionScenario.execute(PermissionScenarioInput("prod", "admin"))
+                log.info(scenarioResult.toString())
             }
             launch {
-                permissionScenario.execute(PermissionScenarioInput("uat", "non-existing"))
+                val scenarioResult = permissionScenario.execute(PermissionScenarioInput("uat", "non-existing"))
+                log.info(scenarioResult.toString())
             }
         }
     }
