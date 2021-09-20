@@ -34,10 +34,10 @@ class PermissionScenario(
         scenarioInput: PermissionScenarioInput,
         stepResult: StepResult<PermissionCheckContext, Boolean>
     ): ScenarioResult {
-        stepResult.taskResults.forEach {
+        stepResult.functionResults.forEach {
             log.debug("[permission=${scenarioInput.permission},host=${it.context.host},result=${it.taskResult}]")
         }
-        val resultStatus = if (stepResult.taskResults.all { it.taskResult }) ResultStatus.OK else ResultStatus.PROBLEM_DETECTED
+        val resultStatus = if (stepResult.functionResults.all { it.taskResult }) ResultStatus.OK else ResultStatus.PROBLEM_DETECTED
 
         return SimpleScenarioResult(resultStatus)
     }

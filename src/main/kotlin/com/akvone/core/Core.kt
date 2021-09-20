@@ -1,14 +1,14 @@
 package com.akvone.core
 
-interface Function<TaskContext, TaskResult> : Stateless {
+interface Function<Context, Result> : Stateless {
     /**
      * Do not block execution inside this method
      */
-    suspend fun execute(context: TaskContext): TaskResult
+    suspend fun execute(context: Context): Result
 }
 
-interface Scenario<ScenarioInput> {
-    suspend fun execute(scenarioInput: ScenarioInput): ScenarioResult
+interface Scenario<Input> {
+    suspend fun execute(scenarioInput: Input): ScenarioResult
 }
 
 interface ScenarioResult {
