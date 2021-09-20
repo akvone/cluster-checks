@@ -11,7 +11,7 @@ interface ContextGenerator<ScenarioInput, FunctionContext> {
 
 data class FunctionResult<FunctionContext, FunctionResult>(
     val context: FunctionContext,
-    val taskResult: FunctionResult
+    val result: FunctionResult
 )
 
 abstract class BaseOneStepScenario<ScenarioInput, FunctionContext, FunctionResult>(
@@ -21,11 +21,11 @@ abstract class BaseOneStepScenario<ScenarioInput, FunctionContext, FunctionResul
 
     private val log = getLogger()
 
-    override suspend fun execute(scenarioInput: ScenarioInput): ScenarioResult {
-        log.info("[scenarioInput=$scenarioInput]")
-        val contexts = contextGenerator.generate(scenarioInput)
+    override suspend fun execute(input: ScenarioInput): ScenarioResult {
+        log.info("[scenarioInput=$input]")
+        val contexts = contextGenerator.generate(input)
         val stepResult: StepResult<FunctionContext, FunctionResult> = Step(function, contexts).execute()
-        val scenarioResult: ScenarioResult = handleStepResult(scenarioInput, stepResult)
+        val scenarioResult: ScenarioResult = handleStepResult(input, stepResult)
 
         return scenarioResult
     }
@@ -46,8 +46,8 @@ class Step<FunctionContext, FunctionResult>(
             val functionResults: List<com.akvone.core.FunctionResult<FunctionContext, FunctionResult>> =
                 contexts.map { context ->
                     async {
-                        val taskResult = function.execute(context)
-                        FunctionResult(context, taskResult)
+                        val functionResult = function.execute(context)
+                        FunctionResult(context, functionResult)
                     }
                 }.awaitAll()
 

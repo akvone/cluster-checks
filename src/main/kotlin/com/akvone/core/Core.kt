@@ -8,7 +8,7 @@ interface Function<Context, Result> : Stateless {
 }
 
 interface Scenario<Input> {
-    suspend fun execute(scenarioInput: Input): ScenarioResult
+    suspend fun execute(input: Input): ScenarioResult
 }
 
 interface ScenarioResult {
