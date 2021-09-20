@@ -1,5 +1,6 @@
 package com.akvone.core
 
+import com.akvone.core.Utils.getLogger
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -18,7 +19,10 @@ abstract class BaseOneStepScenario<ScenarioInput, FunctionContext, FunctionResul
     private val contextGenerator: ContextGenerator<ScenarioInput, FunctionContext>
 ) : Scenario<ScenarioInput>, Stateless {
 
+    private val log = getLogger()
+
     override suspend fun execute(scenarioInput: ScenarioInput): ScenarioResult {
+        log.info("[scenarioInput=$scenarioInput]")
         val contexts = contextGenerator.generate(scenarioInput)
         val stepResult: StepResult<FunctionContext, FunctionResult> = Step(function, contexts).execute()
         val scenarioResult: ScenarioResult = handleStepResult(scenarioInput, stepResult)
@@ -26,7 +30,10 @@ abstract class BaseOneStepScenario<ScenarioInput, FunctionContext, FunctionResul
         return scenarioResult
     }
 
-    protected abstract fun handleStepResult(scenarioInput: ScenarioInput, stepResult: StepResult<FunctionContext, FunctionResult>): ScenarioResult
+    protected abstract fun handleStepResult(
+        scenarioInput: ScenarioInput,
+        stepResult: StepResult<FunctionContext, FunctionResult>
+    ): ScenarioResult
 
 }
 
@@ -36,12 +43,13 @@ class Step<FunctionContext, FunctionResult>(
 ) {
     suspend fun execute(): StepResult<FunctionContext, FunctionResult> {
         return coroutineScope { // TODO: Check it
-            val functionResults: List<com.akvone.core.FunctionResult<FunctionContext, FunctionResult>> = contexts.map { context ->
-                async {
-                    val taskResult = function.execute(context)
-                    FunctionResult(context, taskResult)
-                }
-            }.awaitAll()
+            val functionResults: List<com.akvone.core.FunctionResult<FunctionContext, FunctionResult>> =
+                contexts.map { context ->
+                    async {
+                        val taskResult = function.execute(context)
+                        FunctionResult(context, taskResult)
+                    }
+                }.awaitAll()
 
             StepResult(functionResults)
         }

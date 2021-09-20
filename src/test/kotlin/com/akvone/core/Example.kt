@@ -28,7 +28,7 @@ class PermissionScenario(
     permissionContextGenerator
 ) {
 
-    val log = getLogger()
+    private val log = getLogger()
 
     override fun handleStepResult(
         scenarioInput: PermissionScenarioInput,
