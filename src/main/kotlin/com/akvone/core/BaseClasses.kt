@@ -9,13 +9,8 @@ interface ContextGenerator<ScenarioInput, FunctionContext> {
     fun generate(input: ScenarioInput): Collection<FunctionContext>
 }
 
-data class FunctionResult<FunctionContext, FunctionResult>(
-    val context: FunctionContext,
-    val result: Result<FunctionResult>
-)
-
-abstract class BaseOneStepScenario<ScenarioInput, FunctionContext, FunctionResult>(
-    private val function: Function<FunctionContext, FunctionResult>,
+abstract class BaseOneStepScenario<ScenarioInput, FunctionContext, SuccessfulFunctionResult>(
+    private val function: Function<FunctionContext, SuccessfulFunctionResult>,
     private val contextGenerator: ContextGenerator<ScenarioInput, FunctionContext>
 ) : Scenario<ScenarioInput>, Stateless {
 
@@ -24,7 +19,7 @@ abstract class BaseOneStepScenario<ScenarioInput, FunctionContext, FunctionResul
     override suspend fun execute(input: ScenarioInput): ScenarioResult {
         log.info("[scenarioInput=$input]")
         val contexts = contextGenerator.generate(input)
-        val stepResult: StepResult<FunctionContext, FunctionResult> = Step(function, contexts).execute()
+        val stepResult: StepResult<FunctionContext, SuccessfulFunctionResult> = Step(function, contexts).execute()
         val scenarioResult: ScenarioResult = handleStepResult(input, stepResult)
 
         return scenarioResult
@@ -32,18 +27,18 @@ abstract class BaseOneStepScenario<ScenarioInput, FunctionContext, FunctionResul
 
     protected abstract fun handleStepResult(
         scenarioInput: ScenarioInput,
-        stepResult: StepResult<FunctionContext, FunctionResult>
+        stepResult: StepResult<FunctionContext, SuccessfulFunctionResult>
     ): ScenarioResult
 
 }
 
-class Step<FunctionContext, FunctionResult>(
-    private val function: Function<FunctionContext, FunctionResult>,
+class Step<FunctionContext, SuccessfulFunctionResult>(
+    private val function: Function<FunctionContext, SuccessfulFunctionResult>,
     private val contexts: Collection<FunctionContext>
 ) {
-    suspend fun execute(): StepResult<FunctionContext, FunctionResult> {
+    suspend fun execute(): StepResult<FunctionContext, SuccessfulFunctionResult> {
         return coroutineScope { // TODO: Check it
-            val functionResults: List<com.akvone.core.FunctionResult<FunctionContext, FunctionResult>> =
+            val functionResults: List<FunctionResult<FunctionContext, SuccessfulFunctionResult>> =
                 contexts.map { context ->
                     async {
                         val result = kotlin.runCatching {
@@ -58,8 +53,13 @@ class Step<FunctionContext, FunctionResult>(
     }
 }
 
-data class StepResult<FunctionContext, FunctionResult>(
-    val functionResults: Collection<com.akvone.core.FunctionResult<FunctionContext, FunctionResult>>
+data class StepResult<FunctionContext, SuccessfulFunctionResult>(
+    val functionResults: Collection<FunctionResult<FunctionContext, SuccessfulFunctionResult>>
+)
+
+data class FunctionResult<FunctionContext, SuccessfulFunctionResult>(
+    val context: FunctionContext,
+    val result: Result<SuccessfulFunctionResult>
 )
 
 data class SimpleScenarioResult(val status: ResultStatus) : ScenarioResult {
