@@ -11,7 +11,7 @@ interface ContextGenerator<ScenarioInput, FunctionContext> {
 
 data class FunctionResult<FunctionContext, FunctionResult>(
     val context: FunctionContext,
-    val result: FunctionResult
+    val result: Result<FunctionResult>
 )
 
 abstract class BaseOneStepScenario<ScenarioInput, FunctionContext, FunctionResult>(
@@ -46,8 +46,10 @@ class Step<FunctionContext, FunctionResult>(
             val functionResults: List<com.akvone.core.FunctionResult<FunctionContext, FunctionResult>> =
                 contexts.map { context ->
                     async {
-                        val functionResult = function.execute(context)
-                        FunctionResult(context, functionResult)
+                        val result = kotlin.runCatching {
+                            function.execute(context)
+                        }
+                        FunctionResult(context, result)
                     }
                 }.awaitAll()
 

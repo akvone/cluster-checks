@@ -1,5 +1,7 @@
 package com.akvone.core
 
+import com.akvone.core.ResultStatus.OK
+import com.akvone.core.ResultStatus.PROBLEM_DETECTED
 import com.akvone.core.Utils.getLogger
 import org.springframework.stereotype.Component
 
@@ -37,8 +39,15 @@ class PermissionScenario(
         stepResult.functionResults.forEach {
             log.debug("[permission=${scenarioInput.permission},host=${it.context.host},result=${it.result}]")
         }
-        val resultStatus = if (stepResult.functionResults.all { it.result }) ResultStatus.OK else ResultStatus.PROBLEM_DETECTED
-
+        val resultStatus = if (stepResult.functionResults.any { it.result.isFailure }) {
+            PROBLEM_DETECTED
+        } else {
+            if (stepResult.functionResults.all { it.result.getOrThrow() }) {
+                OK
+            } else {
+                PROBLEM_DETECTED
+            }
+        }
         return SimpleScenarioResult(resultStatus)
     }
 
