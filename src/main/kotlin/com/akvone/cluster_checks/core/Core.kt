@@ -14,7 +14,7 @@ interface Scenario<Input> {
 }
 
 interface ScenarioResult {
-    fun getResultStatus(): ResultStatus
+    val status: ResultStatus
 }
 
 enum class ResultStatus {

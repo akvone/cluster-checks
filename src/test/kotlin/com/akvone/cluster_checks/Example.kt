@@ -1,14 +1,14 @@
 package com.akvone.cluster_checks
 
-import com.akvone.cluster_checks.base.BaseOneStepScenario
+import com.akvone.cluster_checks.base.AbstractOneStepScenario
+import com.akvone.cluster_checks.base.AbstractScenarioResult.SimpleResult
 import com.akvone.cluster_checks.base.ContextGenerator
-import com.akvone.cluster_checks.base.SimpleScenarioResult
 import com.akvone.cluster_checks.base.StepResult
+import com.akvone.cluster_checks.core.Function
 import com.akvone.cluster_checks.core.ResultStatus.OK
 import com.akvone.cluster_checks.core.ResultStatus.PROBLEM_DETECTED
+import com.akvone.cluster_checks.core.ScenarioResult
 import com.akvone.cluster_checks.utils.Utils.getLogger
-import com.akvone.cluster_checks.core.*
-import com.akvone.cluster_checks.core.Function
 import org.springframework.stereotype.Component
 
 @Component
@@ -31,7 +31,7 @@ data class PermissionCheckContext(
 class PermissionScenario(
     infoFunction: InfoFunction,
     permissionContextGenerator: PermissionContextGenerator
-) : BaseOneStepScenario<PermissionScenarioInput, PermissionCheckContext, Boolean>(
+) : AbstractOneStepScenario<PermissionScenarioInput, PermissionCheckContext, Boolean>(
     infoFunction,
     permissionContextGenerator
 ) {
@@ -54,7 +54,7 @@ class PermissionScenario(
                 PROBLEM_DETECTED
             }
         }
-        return SimpleScenarioResult(resultStatus)
+        return SimpleResult(resultStatus)
     }
 
 }

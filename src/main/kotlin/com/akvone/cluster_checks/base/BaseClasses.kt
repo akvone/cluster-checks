@@ -1,8 +1,6 @@
 package com.akvone.cluster_checks.base
 
 import com.akvone.cluster_checks.core.Function
-import com.akvone.cluster_checks.core.ResultStatus
-import com.akvone.cluster_checks.core.ScenarioResult
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -40,7 +38,3 @@ data class FunctionResult<FunctionContext, SuccessfulFunctionResult>(
     val context: FunctionContext,
     val result: Result<SuccessfulFunctionResult>
 )
-
-data class SimpleScenarioResult(val status: ResultStatus) : ScenarioResult {
-    override fun getResultStatus() = status
-}
