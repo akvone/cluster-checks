@@ -1,10 +1,11 @@
-package com.akvone.cluster_checks
+package com.akvone.cluster_checks.integration
 
+import com.akvone.cluster_checks.MockRestClient
 import com.akvone.cluster_checks.base.AbstractOneStepScenario
 import com.akvone.cluster_checks.base.AbstractScenarioResult.SimpleResult
 import com.akvone.cluster_checks.base.ContextGenerator
 import com.akvone.cluster_checks.base.StepResult
-import com.akvone.cluster_checks.core.Function
+import com.akvone.cluster_checks.core.SFunction
 import com.akvone.cluster_checks.core.ResultStatus.OK
 import com.akvone.cluster_checks.core.ResultStatus.PROBLEM_DETECTED
 import com.akvone.cluster_checks.core.ScenarioResult
@@ -12,7 +13,7 @@ import com.akvone.cluster_checks.utils.Utils.getLogger
 import org.springframework.stereotype.Component
 
 @Component
-class InfoFunction : Function<PermissionCheckContext, Boolean> {
+class InfoFunction : SFunction<PermissionCheckContext, Boolean> {
 
     override suspend fun execute(context: PermissionCheckContext): Boolean {
         val body = context.mockRestClient.get(context.host)
@@ -66,10 +67,10 @@ data class PermissionScenarioInput(
 
 @Component
 class PermissionContextGenerator : ContextGenerator<PermissionScenarioInput, PermissionCheckContext> {
-    override fun generate(input: PermissionScenarioInput): Collection<PermissionCheckContext> {
+    override fun generate(scenarioInput: PermissionScenarioInput): Collection<PermissionCheckContext> {
         val contexts = (1..10).map {
-            "https://${input.tier}.example$it.org"
-        }.map { PermissionCheckContext(MockRestClient(), it, input.permission) }
+            "https://${scenarioInput.tier}.example$it.org"
+        }.map { PermissionCheckContext(MockRestClient(), it, scenarioInput.permission) }
 
         return contexts
     }

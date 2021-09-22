@@ -1,4 +1,4 @@
-package com.akvone.cluster_checks
+package com.akvone.cluster_checks.integration
 
 import com.akvone.cluster_checks.utils.Utils.getLogger
 import kotlinx.coroutines.launch
@@ -9,7 +9,7 @@ import org.springframework.test.context.TestConstructor
 
 @SpringBootTest
 @TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
-class ExampleTest(
+class PermissionScenarioTest(
     val permissionScenario: PermissionScenario
 ) {
 

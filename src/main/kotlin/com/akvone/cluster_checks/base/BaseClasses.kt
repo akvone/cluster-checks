@@ -1,21 +1,21 @@
 package com.akvone.cluster_checks.base
 
-import com.akvone.cluster_checks.core.Function
+import com.akvone.cluster_checks.core.SFunction
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
-interface ContextGenerator<ScenarioInput, FunctionContext> {
-    fun generate(input: ScenarioInput): Collection<FunctionContext>
+interface ContextGenerator<ScenarioInput, Context> {
+    fun generate(scenarioInput: ScenarioInput): Collection<Context>
 }
 
-class Step<FunctionContext, SuccessfulFunctionResult>(
-    private val function: Function<FunctionContext, SuccessfulFunctionResult>,
-    private val contexts: Collection<FunctionContext>
+class Step<Context, Output>(
+    private val function: SFunction<Context, Output>,
+    private val contexts: Collection<Context>
 ) {
-    suspend fun execute(): StepResult<FunctionContext, SuccessfulFunctionResult> {
+    suspend fun execute(): StepResult<Context, Output> {
         return coroutineScope { // TODO: Check it
-            val functionResults: List<FunctionResult<FunctionContext, SuccessfulFunctionResult>> =
+            val functionResults: List<FunctionResult<Context, Output>> =
                 contexts.map { context ->
                     async {
                         val result = kotlin.runCatching {
@@ -30,11 +30,11 @@ class Step<FunctionContext, SuccessfulFunctionResult>(
     }
 }
 
-data class StepResult<FunctionContext, SuccessfulFunctionResult>(
-    val functionResults: Collection<FunctionResult<FunctionContext, SuccessfulFunctionResult>>
+data class StepResult<Context, Output>(
+    val functionResults: Collection<FunctionResult<Context, Output>>
 )
 
-data class FunctionResult<FunctionContext, SuccessfulFunctionResult>(
-    val context: FunctionContext,
-    val result: Result<SuccessfulFunctionResult>
+data class FunctionResult<Context, Output>(
+    val context: Context,
+    val result: Result<Output>
 )

@@ -2,15 +2,15 @@ package com.akvone.cluster_checks.core
 
 import com.akvone.cluster_checks.Stateless
 
-interface Function<Context, Result> : Stateless {
+interface SFunction<Context, Output> : Stateless {
     /**
      * Do not block execution inside this method
      */
-    suspend fun execute(context: Context): Result
+    suspend fun execute(context: Context): Output
 }
 
 interface Scenario<Input> {
-    suspend fun execute(input: Input): ScenarioResult
+    suspend fun execute(scenarioInput: Input): ScenarioResult
 }
 
 interface ScenarioResult {
