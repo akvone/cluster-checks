@@ -1,8 +1,14 @@
-package com.akvone.core
+package com.akvone.cluster_checks
 
-import com.akvone.core.ResultStatus.OK
-import com.akvone.core.ResultStatus.PROBLEM_DETECTED
-import com.akvone.core.Utils.getLogger
+import com.akvone.cluster_checks.base.BaseOneStepScenario
+import com.akvone.cluster_checks.base.ContextGenerator
+import com.akvone.cluster_checks.base.SimpleScenarioResult
+import com.akvone.cluster_checks.base.StepResult
+import com.akvone.cluster_checks.core.ResultStatus.OK
+import com.akvone.cluster_checks.core.ResultStatus.PROBLEM_DETECTED
+import com.akvone.cluster_checks.utils.Utils.getLogger
+import com.akvone.cluster_checks.core.*
+import com.akvone.cluster_checks.core.Function
 import org.springframework.stereotype.Component
 
 @Component

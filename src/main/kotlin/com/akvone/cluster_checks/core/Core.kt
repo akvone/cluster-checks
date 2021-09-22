@@ -1,4 +1,6 @@
-package com.akvone.core
+package com.akvone.cluster_checks.core
+
+import com.akvone.cluster_checks.Stateless
 
 interface Function<Context, Result> : Stateless {
     /**

@@ -1,6 +1,6 @@
-package com.akvone.core
+package com.akvone.cluster_checks
 
-import com.akvone.core.Utils.getLogger
+import com.akvone.cluster_checks.utils.Utils.getLogger
 import kotlinx.coroutines.delay
 
 class MockRestClient {
