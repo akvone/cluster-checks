@@ -6,7 +6,7 @@ import com.akvone.cluster_checks.core.Scenario
 import com.akvone.cluster_checks.core.ScenarioResult
 import com.akvone.cluster_checks.utils.Utils.getLogger
 
-abstract class BaseOneStepScenario<ScenarioInput, FunctionContext, SuccessfulFunctionResult>(
+abstract class AbstractOneStepScenario<ScenarioInput, FunctionContext, SuccessfulFunctionResult>(
     private val function: Function<FunctionContext, SuccessfulFunctionResult>,
     private val contextGenerator: ContextGenerator<ScenarioInput, FunctionContext>
 ) : Scenario<ScenarioInput>, Stateless {
