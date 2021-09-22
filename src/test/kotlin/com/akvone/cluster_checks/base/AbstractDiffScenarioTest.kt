@@ -49,8 +49,8 @@ internal class AbstractDiffScenarioTest {
     }
 }
 
-class AbstractDiffScenarioForTest : AbstractDiffScenario<Any, Any, Any>(
-    object : SFunction<Any, Collection<Any>> {
+class AbstractDiffScenarioForTest : AbstractDiffScenario<Any, Any, Set<Any>>(
+    object : SFunction<Any, Set<Any>> {
         override suspend fun execute(context: Any) = TODO("Not yet implemented")
     },
     object : ContextGenerator<Any, Any> {

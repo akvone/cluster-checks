@@ -4,10 +4,10 @@ import com.akvone.cluster_checks.core.SFunction
 import com.akvone.cluster_checks.core.ScenarioResult
 import com.akvone.cluster_checks.utils.Utils.getLogger
 
-abstract class AbstractDiffScenario<ScenarioInput, Context, T>(
-    function: SFunction<Context, Collection<T>>,
+abstract class AbstractDiffScenario<ScenarioInput, Context, T : Collection<*>>(
+    function: SFunction<Context, T>,
     ContextGenerator: ContextGenerator<ScenarioInput, Context>
-) : AbstractOneStepScenario<ScenarioInput, Context, Collection<T>>(
+) : AbstractOneStepScenario<ScenarioInput, Context, T>(
     function,
     ContextGenerator
 ) {
@@ -16,7 +16,7 @@ abstract class AbstractDiffScenario<ScenarioInput, Context, T>(
 
     override fun handleStepResult(
         scenarioInput: ScenarioInput,
-        stepResult: StepResult<Context, Collection<T>>
+        stepResult: StepResult<Context, T>
     ): ScenarioResult {
         val successfulResults = stepResult.functionResults
             .filter { it.result.isSuccess }
