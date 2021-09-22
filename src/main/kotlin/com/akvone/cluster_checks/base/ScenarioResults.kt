@@ -9,7 +9,7 @@ sealed class AbstractScenarioResult(
     class SimpleResult(status: ResultStatus) : AbstractScenarioResult(status)
 
     object SuccessfulResult : AbstractScenarioResult(ResultStatus.OK)
-    class ProblemResult(
+    data class ProblemResult(
         val message: String,
     ) : AbstractScenarioResult(ResultStatus.PROBLEM_DETECTED)
 }
